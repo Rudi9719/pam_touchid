@@ -24,9 +24,13 @@ PAM_EXTERN int pam_sm_chauthtok(pam_handle_t *pamh, int flags, int argc, const c
 
 PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **argv) {
     
+    // Ignore request if it's over SSH
+    if (getenv("SSH_TTY"))  
+        return PAM_IGNORE;
+    
     __block int result = PAM_AUTH_ERR;
     dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-    
+    // The reason displayed to the user
     NSString *reason = FindReason(argc, argv);
     if (reason.length == 0)
         reason = @"perform an action that requires authentication";
